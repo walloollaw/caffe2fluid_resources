@@ -1,0 +1,108 @@
+name: "hello_net"
+input: "data"
+input_dim: 1
+input_dim: 3
+input_dim: 224
+input_dim: 224
+layer {
+  name: "conv"
+  type: "Convolution"
+  bottom: "data"
+  top: "conv"
+  convolution_param {
+    num_output: 10
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+
+layer {
+  name: "pool"
+  type: "Pooling"
+  bottom: "conv"
+  top: "pool"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+
+#layer {
+#  name: "pool_slicer"
+#  type: "Slice"
+#  bottom: "pool"
+#  top: "slice1"
+#  top: "slice2"
+#  top: "slice3"
+#  slice_param {
+#    axis: 1
+#    slice_point: 3
+#    slice_point: 6
+#  }
+#}
+
+layer {
+  name: "pool_select1"
+  type: "Select"
+  bottom: "pool"
+  top: "slice1"
+  select_param {
+    axis: 1
+    slice_point: 0
+    slice_point: 3
+  }
+}
+
+layer {
+  name: "pool_select2"
+  type: "Select"
+  bottom: "pool"
+  top: "slice2"
+  select_param {
+    axis: 1
+    slice_point: 3
+    slice_point: 6
+  }
+}
+
+layer {
+  name: "pool_select3"
+  type: "Select"
+  bottom: "pool"
+  top: "slice3"
+  select_param {
+    axis: 1
+    slice_point: 6
+  }
+}
+
+layer {
+  name: "concat_13"
+  bottom: "slice1"
+  bottom: "slice3"
+  top: "concat_13"
+  type: "Concat"
+  concat_param {
+    axis: 1
+  }
+}
+
+layer {
+  name: "concat_132"
+  bottom: "concat_13"
+  bottom: "slice2"
+  top: "concat_132"
+  type: "Concat"
+  concat_param {
+    axis: 1
+  }
+}
